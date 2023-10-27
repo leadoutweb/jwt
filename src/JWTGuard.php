@@ -62,4 +62,14 @@ class JWTGuard implements Guard
     {
         return $this->userProvider->retrieveByCredentials($credentials) != null;
     }
+
+    /**
+     * Set the current request instance.
+     */
+    public function setRequest(Request $request): static
+    {
+        $this->request = $request;
+
+        return $this;
+    }
 }
