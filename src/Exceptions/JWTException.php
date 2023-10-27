@@ -2,7 +2,7 @@
 
 namespace Leadout\JWT\Exceptions;
 
-use PHPUnit\Framework\Exception;
+use Exception;
 
 class JWTException extends Exception
 {
