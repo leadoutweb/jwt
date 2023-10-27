@@ -3,9 +3,11 @@
 namespace Leadout\JWT;
 
 use Illuminate\Auth\GuardHelpers;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\Guard;
 use Illuminate\Contracts\Auth\UserProvider;
 use Illuminate\Http\Request;
+use Leadout\JWT\Entities\Token;
 use Leadout\JWT\Exceptions\JWTException;
 
 class JWTGuard implements Guard
@@ -71,6 +73,14 @@ class JWTGuard implements Guard
         $this->request = $request;
 
         return $this;
+    }
+
+    /**
+     * Issue a token for the given user.
+     */
+    public function issue(Authenticatable $user): Token
+    {
+        return $this->tokenManager->issue($user);
     }
 
     /**
