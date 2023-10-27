@@ -135,4 +135,12 @@ class TokenManager
 
         return new Token($request->bearerToken());
     }
+
+    /**
+     * Get the token provider.
+     */
+    public function getTokenProvider(): TokenProvider
+    {
+        return $this->tokenProvider;
+    }
 }
