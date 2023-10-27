@@ -72,4 +72,12 @@ class JWTGuard implements Guard
 
         return $this;
     }
+
+    /**
+     * Get the token manager.
+     */
+    public function getTokenManager(): TokenManager
+    {
+        return $this->tokenManager;
+    }
 }
