@@ -62,7 +62,7 @@ class TokenManager
             'nbf' => Carbon::now()->timestamp,
             'exp' => Carbon::now()->addHour()->timestamp,
             'sub' => $user->getAuthIdentifier(),
-            ...$this->config['claims']
+            ...$this->config['claims'] ?? []
         ];
 
         if (method_exists($user, 'getClaims')) {
