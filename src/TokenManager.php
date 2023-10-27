@@ -8,9 +8,9 @@ use Illuminate\Http\Request;
 use Leadout\JWT\Entities\Claims;
 use Leadout\JWT\Entities\Token;
 use Leadout\JWT\Exceptions\TokenExpiredException;
-use Leadout\JWT\Exceptions\TokenInvalidatedException;
+use Leadout\JWT\Exceptions\TokenBlacklistedException;
 use Leadout\JWT\Exceptions\TokenNotProvidedException;
-use Leadout\JWT\InvalidTokenRepositories\Contract as InvalidTokenRepository;
+use Leadout\JWT\Blacklists\Contract as Blacklist;
 use Leadout\JWT\TokenProviders\Contract as TokenProvider;
 use Ramsey\Uuid\Uuid;
 
@@ -22,9 +22,9 @@ class TokenManager
     private TokenProvider $tokenProvider;
 
     /**
-     * The invalid token repository.
+     * The token blacklist.
      */
-    private InvalidTokenRepository $blacklist;
+    private Blacklist $blacklist;
 
     /**
      * The configuration data.
@@ -34,7 +34,7 @@ class TokenManager
     /**
      * Instantiate the class.
      */
-    public function __construct(TokenProvider $tokenProvider, InvalidTokenRepository $blacklist, array $config)
+    public function __construct(TokenProvider $tokenProvider, Blacklist $blacklist, array $config)
     {
         $this->tokenProvider = $tokenProvider;
 
@@ -87,8 +87,8 @@ class TokenManager
      */
     private function guard(Claims $claims): Claims
     {
-        if ($this->isInvalidated($claims->jti())) {
-            throw new TokenInvalidatedException;
+        if ($this->isBlacklisted($claims->jti())) {
+            throw new TokenBlacklistedException;
         }
 
         if ($this->isExpired($claims->exp())) {
@@ -99,9 +99,9 @@ class TokenManager
     }
 
     /**
-     * Determine if the token identified by the given token ID has been invalidated.
+     * Determine if the token identified by the given token ID has been blacklisted.
      */
-    private function isInvalidated(string $jti): bool
+    private function isBlacklisted(string $jti): bool
     {
         return $this->blacklist->has($jti);
     }

@@ -3,7 +3,7 @@
 namespace Leadout\JWT;
 
 use Illuminate\Support\ServiceProvider;
-use Leadout\JWT\InvalidTokenRepositories\Drivers\Cache;
+use Leadout\JWT\Blacklists\Drivers\Cache;
 use Leadout\JWT\TokenProviders\Drivers\Firebase;
 
 class JWTServiceProvider extends ServiceProvider

@@ -1,8 +1,6 @@
 <?php
 
-namespace Leadout\JWT\InvalidTokenRepositories;
-
-use Leadout\JWT\Entities\Claims;
+namespace Leadout\JWT\Blacklists;
 
 interface Contract
 {

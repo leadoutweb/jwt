@@ -1,11 +1,9 @@
 <?php
 
-namespace Leadout\JWT\InvalidTokenRepositories\Drivers;
+namespace Leadout\JWT\Blacklists\Drivers;
 
-use Carbon\Carbon;
 use Illuminate\Contracts\Cache\Repository;
-use Leadout\JWT\Entities\Claims;
-use Leadout\JWT\InvalidTokenRepositories\Contract;
+use Leadout\JWT\Blacklists\Contract;
 use Psr\SimpleCache\InvalidArgumentException;
 
 class Cache implements Contract
@@ -48,6 +46,6 @@ class Cache implements Contract
      */
     private function key(string $jti): string
     {
-        return 'tokens.'.$jti.'.invalidated';
+        return 'tokens.'.$jti.'.blacklisted';
     }
 }
