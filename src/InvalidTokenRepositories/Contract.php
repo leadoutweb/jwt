@@ -1,0 +1,18 @@
+<?php
+
+namespace Leadout\JWT\InvalidTokenRepositories;
+
+use Leadout\JWT\Entities\Claims;
+
+interface Contract
+{
+    /**
+     * Invalidate the token identified by the given ID for the given number of seconds.
+     */
+    public function put(string $jti, ?int $ttl): void;
+
+    /**
+     * Determine if the token identified by the given ID is in the repository.
+     */
+    public function has(string $jti): bool;
+}
