@@ -1,4 +1,7 @@
 # leadout-jwt
+
+![run-tests workflow](https://github.com/leadoutweb/jwt/actions/workflows/run-tests.yml/badge.svg)
+
 A lightweight JWT guard for Laravel.
 
 ## Installation
