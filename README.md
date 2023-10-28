@@ -92,10 +92,17 @@ In addition to adding custom claims through the guard configuration, it is possi
 Simply add a `getClaims()` method to the user model and return an array of claims:
 
 ```
-public function getClaims() : array
+<?php
+
+use Illuminate\Foundation\Auth\User as Authenticatable;
+
+class User extends Authenticatable
 {
-    return [
-        'key' => 'value'
-    ];
+    public function getClaims() : array
+    {
+        return [
+            'key' => 'value'
+        ];
+    }
 }
 ```
