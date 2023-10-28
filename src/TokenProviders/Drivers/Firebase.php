@@ -29,19 +29,23 @@ class Firebase implements Contract
     public function encode(Claims $claims): Token
     {
         return new Token(
-            JWT::encode($claims->all(), file_get_contents($this->config['private_key']), 'RS256')
+            JWT::encode($claims->all(), file_get_contents($this->config['private_key']), 'RS256'),
+            $claims
         );
     }
 
     /**
      * {@inheritdoc}
      */
-    public function decode(Token $token): Claims
+    public function decode(Token $token): Token
     {
-        return new Claims(
-            (array)JWT::decode(
-                $token->getValue(),
-                new Key(file_get_contents($this->config['public_key']), 'RS256')
+        return new Token(
+            $token->getValue(),
+            new Claims(
+                (array)JWT::decode(
+                    $token->getValue(),
+                    new Key(file_get_contents($this->config['public_key']), 'RS256')
+                )
             )
         );
     }

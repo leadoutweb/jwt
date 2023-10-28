@@ -51,7 +51,9 @@ class JWTGuard implements Guard
         }
 
         try {
-            return $this->user = $this->userProvider->retrieveById($this->tokenManager->claims($this->request)->sub());
+            return $this->user = $this->userProvider->retrieveById(
+                $this->tokenManager->decode($this->request)->claims()->sub()
+            );
         } catch (JWTException) {
             return null;
         }
@@ -81,6 +83,14 @@ class JWTGuard implements Guard
     public function issue(Authenticatable $user): Token
     {
         return $this->tokenManager->issue($user);
+    }
+
+    /**
+     * Refresh the token.
+     */
+    public function refresh(): Token
+    {
+        return $this->tokenManager->refresh($this->request);
     }
 
     /**

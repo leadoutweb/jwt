@@ -10,7 +10,7 @@ use Leadout\JWT\Entities\Claims;
 use Leadout\JWT\Entities\Token;
 use Leadout\JWT\Exceptions\InvalidAudienceException;
 use Leadout\JWT\Exceptions\TokenExpiredException;
-use Leadout\JWT\Exceptions\TokenBlacklistedException;
+use Leadout\JWT\Exceptions\TokenInvalidatedException;
 use Leadout\JWT\Exceptions\TokenNotProvidedException;
 use Leadout\JWT\Blacklists\Contract as Blacklist;
 use Leadout\JWT\TokenProviders\Contract as TokenProvider;
@@ -56,63 +56,68 @@ class TokenManager
      */
     public function issue(Authenticatable $user): Token
     {
-        return $this->tokenProvider->encode($this->getClaims($user));
+        return $this->tokenProvider->encode($this->getClaimsForUser($user));
     }
 
     /**
-     * Get the claims for a token for the given user.
+     * Get the claims for the given user.
      */
-    private function getClaims(Authenticatable $user): Claims
+    private function getClaimsForUser(Authenticatable $user): Claims
     {
-        $value = [
+        $claims = [
+            'sub' => $user->getAuthIdentifier(),
+            ...$this->getCommonClaims()
+        ];
+
+        if (method_exists($user, 'getClaims')) {
+            $claims = [...$claims, ...$user->getClaims()];
+        }
+
+        return new Claims($claims);
+    }
+
+    private function getCommonClaims(): array
+    {
+        return [
             'aud' => $this->aud,
             'jti' => Str::uuid()->toString(),
             'iat' => Carbon::now()->timestamp,
             'nbf' => Carbon::now()->timestamp,
             'exp' => Carbon::now()->addMinutes($this->config['ttl'] ?? 60)->timestamp,
-            'sub' => $user->getAuthIdentifier(),
             ...$this->config['claims'] ?? []
         ];
-
-        if (method_exists($user, 'getClaims')) {
-            $value = [...$value, ...$user->getClaims()];
-        }
-
-        return new Claims($value);
     }
 
     /**
-     * Get the claims in the token contained in the given request.
+     * Decode the token contained in the given request.
      */
-    public function claims(Request $request): Claims
+    public function decode(Request $request): Token
     {
-        return $this->guard(
-            $this->tokenProvider->decode($this->getToken($request))
-        );
+        return $this->guard($this->tokenProvider->decode($this->getEncodedToken($request)));
     }
 
     /**
-     * Guard that the given claims are valid.
+     * Guard that the given token is valid.
      */
-    private function guard(Claims $claims): Claims
+    private function guard(Token $token): Token
     {
-        if ($this->isBlacklisted($claims->jti())) {
-            throw new TokenBlacklistedException;
+        if ($this->isBlacklisted($token->claims()->jti())) {
+            throw new TokenInvalidatedException;
         }
 
-        if ($this->isExpired($claims->exp())) {
+        if ($this->isExpired($token->claims()->exp())) {
             throw new TokenExpiredException;
         }
 
-        if($claims->aud() != $this->aud){
+        if ($token->claims()->aud() != $this->aud) {
             throw new InvalidAudienceException;
         }
 
-        return $claims;
+        return $token;
     }
 
     /**
-     * Determine if the token identified by the given token ID has been blacklisted.
+     * Determine if the token identified by the given token ID has been invalidated.
      */
     private function isBlacklisted(string $jti): bool
     {
@@ -128,19 +133,32 @@ class TokenManager
     }
 
     /**
+     * Refresh the token contained in the given request.
+     */
+    public function refresh(Request $request): Token
+    {
+        return $this->tokenProvider->encode(
+            new Claims([
+                ...$this->decode($request)->claims()->all(),
+                ...$this->getCommonClaims()
+            ])
+        );
+    }
+
+    /**
      * Invalidate the token contained in the given request.
      */
     public function invalidate(Request $request): void
     {
-        $claims = $this->claims($request);
+        $token = $this->decode($request);
 
-        $this->blacklist->put($claims->jti(), $claims->exp() - Carbon::now()->timestamp);
+        $this->blacklist->put($token->claims()->jti(), $token->claims()->exp() - Carbon::now()->timestamp);
     }
 
     /**
      * Get the token contained in the given request.
      */
-    private function getToken(Request $request): Token
+    private function getEncodedToken(Request $request): Token
     {
         if (!$request->bearerToken()) {
             throw new TokenNotProvidedException;

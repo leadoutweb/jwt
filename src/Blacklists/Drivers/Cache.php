@@ -46,6 +46,6 @@ class Cache implements Contract
      */
     private function key(string $jti): string
     {
-        return 'tokens.'.$jti.'.blacklisted';
+        return 'tokens.'.$jti.'.invalidated';
     }
 }

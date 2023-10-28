@@ -13,14 +13,14 @@ class Fake implements Contract
      */
     public function encode(Claims $claims): Token
     {
-        return new Token(base64_encode(json_encode($claims->all())));
+        return new Token(base64_encode(json_encode($claims->all())), $claims);
     }
 
     /**
      * @inheritDoc
      */
-    public function decode(Token $token): Claims
+    public function decode(Token $token): Token
     {
-        return new Claims((array)json_decode(base64_decode($token->getValue())));
+        return new Token($token->getValue(), new Claims((array)json_decode(base64_decode($token->getValue()))));
     }
 }

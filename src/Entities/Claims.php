@@ -2,6 +2,8 @@
 
 namespace Leadout\JWT\Entities;
 
+use Leadout\JWT\Exceptions\InvalidClaimException;
+
 class Claims
 {
     /**
@@ -26,11 +28,23 @@ class Claims
     }
 
     /**
+     * Get the value of the claim with the given name.
+     */
+    public function get(string $name): string
+    {
+        if (!isset($this->value[$name])) {
+            throw new InvalidClaimException;
+        }
+
+        return $this->value[$name];
+    }
+
+    /**
      * Get the jti claim.
      */
     public function jti(): string
     {
-        return $this->value['jti'];
+        return $this->get('jti');
     }
 
     /**
@@ -38,7 +52,7 @@ class Claims
      */
     public function aud(): string
     {
-        return $this->value['aud'];
+        return $this->get('aud');
     }
 
     /**
@@ -46,7 +60,7 @@ class Claims
      */
     public function iss(): string
     {
-        return $this->value['iss'];
+        return $this->get('iss');
     }
 
     /**
@@ -54,7 +68,7 @@ class Claims
      */
     public function iat(): string
     {
-        return $this->value['iat'];
+        return $this->get('iat');
     }
 
     /**
@@ -62,7 +76,7 @@ class Claims
      */
     public function nbf(): string
     {
-        return $this->value['nbf'];
+        return $this->get('nbf');
     }
 
     /**
@@ -70,7 +84,7 @@ class Claims
      */
     public function exp(): string
     {
-        return $this->value['exp'];
+        return $this->get('exp');
     }
 
     /**
@@ -78,6 +92,6 @@ class Claims
      */
     public function sub(): string
     {
-        return $this->value['sub'];
+        return $this->get('sub');
     }
 }

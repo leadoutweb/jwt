@@ -9,7 +9,7 @@ use Leadout\JWT\Blacklists\Drivers\Fake as BlacklistFake;
 use Leadout\JWT\Entities\Claims;
 use Leadout\JWT\Entities\Token;
 use Leadout\JWT\Exceptions\InvalidAudienceException;
-use Leadout\JWT\Exceptions\TokenBlacklistedException;
+use Leadout\JWT\Exceptions\TokenInvalidatedException;
 use Leadout\JWT\Exceptions\TokenExpiredException;
 use Leadout\JWT\TokenManager;
 use Leadout\JWT\TokenProviders\Drivers\Fake as TokenProviderFake;
@@ -37,7 +37,7 @@ class TokenManagerTest extends TestCase
 
         $token = $tokenManager->issue(new AuthenticatableStub('ABC-123'));
 
-        $this->assertEquals('1-2-3-4', $tokenManager->claims($this->getRequest($token))->jti());
+        $this->assertEquals('1-2-3-4', $tokenManager->decode($this->getRequest($token))->claims()->jti());
     }
 
     /** @test */
@@ -51,7 +51,7 @@ class TokenManagerTest extends TestCase
 
         $this->assertEquals(
             Carbon::parse('2023-01-01 12:00:00')->timestamp,
-            $tokenManager->claims($this->getRequest($token))->iat()
+            $tokenManager->decode($this->getRequest($token))->claims()->iat()
         );
     }
 
@@ -66,7 +66,7 @@ class TokenManagerTest extends TestCase
 
         $this->assertEquals(
             Carbon::parse('2023-01-01 12:00:00')->timestamp,
-            $tokenManager->claims($this->getRequest($token))->nbf()
+            $tokenManager->decode($this->getRequest($token))->claims()->nbf()
         );
     }
 
@@ -77,7 +77,7 @@ class TokenManagerTest extends TestCase
 
         $token = $tokenManager->issue(new AuthenticatableStub('ABC-123'));
 
-        $this->assertEquals('ABC-123', $tokenManager->claims($this->getRequest($token))->sub());
+        $this->assertEquals('ABC-123', $tokenManager->decode($this->getRequest($token))->claims()->sub());
     }
 
     /** @test */
@@ -91,7 +91,7 @@ class TokenManagerTest extends TestCase
 
         $this->assertEquals(
             Carbon::parse('2023-01-01 14:00:00')->timestamp,
-            $tokenManager->claims($this->getRequest($token))->exp()
+            $tokenManager->decode($this->getRequest($token))->claims()->exp()
         );
     }
 
@@ -102,7 +102,7 @@ class TokenManagerTest extends TestCase
 
         $token = $tokenManager->issue(new AuthenticatableStub('ABC-123'));
 
-        $this->assertEquals('value', $tokenManager->claims($this->getRequest($token))->all()['key']);
+        $this->assertEquals('value', $tokenManager->decode($this->getRequest($token))->claims()->get('key'));
     }
 
     /** @test */
@@ -112,33 +112,33 @@ class TokenManagerTest extends TestCase
 
         $token = $tokenManager->issue(new AuthenticatableStub('ABC-123', ['key' => 'value']));
 
-        $this->assertEquals('value', $tokenManager->claims($this->getRequest($token))->all()['key']);
+        $this->assertEquals('value', $tokenManager->decode($this->getRequest($token))->claims()->get('key'));
     }
 
     /** @test */
-    function can_get_the_claims_of_a_token()
+    function can_decode_a_token()
     {
         Carbon::setTestNow('2023-01-01 12:00:00');
 
-        $claims = new Claims([
-            'jti' => '1-2-3-4',
-            'aud' => 'jwt',
-            'exp' => Carbon::parse('2023-01-01 12:00:00')->timestamp,
-            'sub' => 'ABC-123'
-        ]);
-
         $tokenProvider = new TokenProviderFake;
 
-        $token = $tokenProvider->encode($claims);
+        $token = $tokenProvider->encode(
+            new Claims([
+                'jti' => '1-2-3-4',
+                'aud' => 'jwt',
+                'exp' => Carbon::parse('2023-01-01 12:00:00')->timestamp,
+                'sub' => 'ABC-123'
+            ])
+        );
 
         $this->assertEquals(
-            $claims,
-            $this->getTokenManager(tokenProvider: $tokenProvider)->claims($this->getRequest($token))
+            $token,
+            $this->getTokenManager(tokenProvider: $tokenProvider)->decode($this->getRequest($token))
         );
     }
 
     /** @test */
-    function can_not_get_the_claims_of_a_token_that_has_been_blacklisted()
+    function can_not_decode_a_token_that_has_been_invalidated()
     {
         $tokenManager = $this->getTokenManager();
 
@@ -146,13 +146,13 @@ class TokenManagerTest extends TestCase
 
         $tokenManager->invalidate($this->getRequest($token));
 
-        $this->expectException(TokenBlacklistedException::class);
+        $this->expectException(TokenInvalidatedException::class);
 
-        $tokenManager->claims($this->getRequest($token));
+        $tokenManager->decode($this->getRequest($token));
     }
 
     /** @test */
-    function can_not_get_the_claims_of_a_token_that_has_expired()
+    function can_not_decode_a_token_that_has_expired()
     {
         Carbon::setTestNow('2023-01-01 12:00:00');
 
@@ -164,11 +164,11 @@ class TokenManagerTest extends TestCase
 
         $this->expectException(TokenExpiredException::class);
 
-        $tokenManager->claims($this->getRequest($token));
+        $tokenManager->decode($this->getRequest($token));
     }
 
     /** @test */
-    function can_not_get_the_claims_of_a_token_with_another_aud()
+    function can_not_decode_a_token_with_another_aud()
     {
         $tokenManager = $this->getTokenManager();
 
@@ -176,7 +176,79 @@ class TokenManagerTest extends TestCase
 
         $this->expectException(InvalidAudienceException::class);
 
-        $this->getTokenManager(name: 'other')->claims($this->getRequest($token));
+        $this->getTokenManager(name: 'other')->decode($this->getRequest($token));
+    }
+
+    /** @test */
+    function can_refresh_a_token()
+    {
+        Carbon::setTestNow('2023-01-01 11:55:00');
+
+        Str::createUuidsUsing(fn() => Str::of('1-2-3-4'));
+
+        $tokenProvider = new TokenProviderFake;
+
+        $token = $tokenProvider->encode(new Claims([
+            'aud' => 'jwt',
+            'jti' => 'ABC-123',
+            'exp' => Carbon::parse('2023-01-01 12:00:00')->timestamp,
+            'key' => 'value'
+        ]));
+
+        $tokenManager = $this->getTokenManager(tokenProvider: $tokenProvider);
+
+        $expected = new Claims([
+            'aud' => 'jwt',
+            'jti' => '1-2-3-4',
+            'iat' => Carbon::parse('2023-01-01 11:55:00')->timestamp,
+            'nbf' => Carbon::parse('2023-01-01 11:55:00')->timestamp,
+            'exp' => Carbon::parse('2023-01-01 12:55:00')->timestamp,
+            'key' => 'value'
+        ]);
+
+        $this->assertEquals($expected, $tokenManager->refresh($this->getRequest($token))->claims());
+    }
+
+    /** @test */
+    function can_not_refresh_a_token_that_has_expired()
+    {
+        Carbon::setTestNow('2023-01-01 11:55:00');
+
+        $tokenProvider = new TokenProviderFake;
+
+        $token = $tokenProvider->encode(new Claims([
+            'aud' => 'jwt',
+            'jti' => 'ABC-123',
+            'exp' => Carbon::parse('2023-01-01 11:00:00')->timestamp,
+        ]));
+
+        $tokenManager = $this->getTokenManager(tokenProvider: $tokenProvider);
+
+        $this->expectException(TokenExpiredException::class);
+
+        $tokenManager->refresh($this->getRequest($token));
+    }
+
+    /** @test */
+    function can_not_refresh_a_token_that_has_been_invalidated()
+    {
+        Carbon::setTestNow('2023-01-01 11:55:00');
+
+        $tokenProvider = new TokenProviderFake;
+
+        $token = $tokenProvider->encode(new Claims([
+            'aud' => 'jwt',
+            'jti' => 'ABC-123',
+            'exp' => Carbon::parse('2023-01-01 12:00:00')->timestamp,
+        ]));
+
+        $tokenManager = $this->getTokenManager(tokenProvider: $tokenProvider);
+
+        $tokenManager->invalidate($this->getRequest($token));
+
+        $this->expectException(TokenInvalidatedException::class);
+
+        $tokenManager->decode($this->getRequest($token));
     }
 
     /** @test */
