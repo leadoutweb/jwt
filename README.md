@@ -29,6 +29,7 @@ return [
     'guards' => [
         'my-guard' => [
             'driver' => 'jwt',
+            'provider' => 'users',
             'public_key' => 'path_to_public_key_file',
             'private_key' => 'path_to_private_key_file',
             'ttl' => 60,
@@ -42,6 +43,8 @@ return [
 ];
 
 ```
+
+The `provider` should be defined in the `providers` array in the authentication configuration file.
 
 The value of `public_key` and `private_key` should point to the public and private keys that are used for encoding and decoding the tokens.
 
