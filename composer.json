@@ -2,7 +2,14 @@
   "name": "leadout/jwt",
   "type": "library",
   "description": "Simple JWT authentication for Laravel.",
-  "keywords": [],
+  "keywords": [
+    "auth",
+    "authentication",
+    "guard",
+    "json web token",
+    "jwt",
+    "laravel"
+  ],
   "license": "MIT",
   "require": {
     "php": "^8.1",
