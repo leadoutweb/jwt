@@ -5,6 +5,7 @@ namespace Leadout\JWT;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Leadout\JWT\Entities\Claims;
 use Leadout\JWT\Entities\Token;
 use Leadout\JWT\Exceptions\InvalidAudienceException;
@@ -13,7 +14,6 @@ use Leadout\JWT\Exceptions\TokenBlacklistedException;
 use Leadout\JWT\Exceptions\TokenNotProvidedException;
 use Leadout\JWT\Blacklists\Contract as Blacklist;
 use Leadout\JWT\TokenProviders\Contract as TokenProvider;
-use Ramsey\Uuid\Uuid;
 
 class TokenManager
 {
@@ -66,16 +66,16 @@ class TokenManager
     {
         $value = [
             'aud' => $this->aud,
-            'jti' => Uuid::uuid4()->toString(),
+            'jti' => Str::uuid()->toString(),
             'iat' => Carbon::now()->timestamp,
             'nbf' => Carbon::now()->timestamp,
-            'exp' => Carbon::now()->addHour()->timestamp,
+            'exp' => Carbon::now()->addMinutes($this->config['ttl'] ?? 60)->timestamp,
             'sub' => $user->getAuthIdentifier(),
             ...$this->config['claims'] ?? []
         ];
 
         if (method_exists($user, 'getClaims')) {
-            $value = [...$value, $user->getClaims()];
+            $value = [...$value, ...$user->getClaims()];
         }
 
         return new Claims($value);

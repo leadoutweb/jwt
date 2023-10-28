@@ -12,11 +12,18 @@ class AuthenticatableStub implements Authenticatable
     private string $authIdentifier;
 
     /**
+     * Additional claims to use when issuing a token.
+     */
+    private array $claims;
+
+    /**
      * Instantiate the class.
      */
-    public function __construct(string $authIdentifier)
+    public function __construct(string $authIdentifier, array $claims = [])
     {
         $this->authIdentifier = $authIdentifier;
+
+        $this->claims = $claims;
     }
 
     /**
@@ -65,5 +72,13 @@ class AuthenticatableStub implements Authenticatable
     public function getRememberTokenName()
     {
         //
+    }
+
+    /**
+     * Get additional claims to use when issuing a token.
+     */
+    public function getClaims(): array
+    {
+        return $this->claims;
     }
 }
