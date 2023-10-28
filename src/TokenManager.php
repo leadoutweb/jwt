@@ -76,6 +76,9 @@ class TokenManager
         return new Claims($claims);
     }
 
+    /**
+     * Get the common claims for a token.
+     */
     private function getCommonClaims(): array
     {
         return [

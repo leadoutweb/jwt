@@ -11,6 +11,7 @@ use Leadout\JWT\Entities\Token;
 use Leadout\JWT\Exceptions\InvalidAudienceException;
 use Leadout\JWT\Exceptions\TokenInvalidatedException;
 use Leadout\JWT\Exceptions\TokenExpiredException;
+use Leadout\JWT\Exceptions\TokenNotProvidedException;
 use Leadout\JWT\TokenManager;
 use Leadout\JWT\TokenProviders\Drivers\Fake as TokenProviderFake;
 use PHPUnit\Framework\TestCase;
@@ -180,6 +181,14 @@ class TokenManagerTest extends TestCase
     }
 
     /** @test */
+    function can_not_decode_a_token_that_is_not_provided()
+    {
+        $this->expectException(TokenNotProvidedException::class);
+
+        $this->getTokenManager(name: 'other')->decode(new Request);
+    }
+
+    /** @test */
     function can_refresh_a_token()
     {
         Carbon::setTestNow('2023-01-01 11:55:00');
@@ -249,6 +258,14 @@ class TokenManagerTest extends TestCase
         $this->expectException(TokenInvalidatedException::class);
 
         $tokenManager->decode($this->getRequest($token));
+    }
+
+    /** @test */
+    function can_not_refresh_a_token_that_is_not_provided()
+    {
+        $this->expectException(TokenNotProvidedException::class);
+
+        $this->getTokenManager(name: 'other')->refresh(new Request);
     }
 
     /** @test */
