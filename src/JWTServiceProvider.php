@@ -19,6 +19,7 @@ class JWTServiceProvider extends ServiceProvider
                 new TokenManager(
                     new Firebase($config),
                     new Cache($app['cache.store']),
+                    $name,
                     $config
                 ),
                 $app['auth']->createUserProvider($config['provider']),

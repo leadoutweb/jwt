@@ -10,7 +10,8 @@
     "ramsey/uuid": "^4.0",
     "illuminate/http": "^10.0",
     "illuminate/auth": "^10.0",
-    "firebase/php-jwt": "^6.0"
+    "firebase/php-jwt": "^6.0",
+    "illuminate/cache": "^10.29"
   },
   "autoload": {
     "psr-4": {

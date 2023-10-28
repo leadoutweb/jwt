@@ -7,6 +7,7 @@ use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Leadout\JWT\Entities\Claims;
 use Leadout\JWT\Entities\Token;
+use Leadout\JWT\Exceptions\InvalidAudienceException;
 use Leadout\JWT\Exceptions\TokenExpiredException;
 use Leadout\JWT\Exceptions\TokenBlacklistedException;
 use Leadout\JWT\Exceptions\TokenNotProvidedException;
@@ -27,6 +28,11 @@ class TokenManager
     private Blacklist $blacklist;
 
     /**
+     * The audience that the token manager is for.
+     */
+    private string $aud;
+
+    /**
      * The configuration data.
      */
     private array $config;
@@ -34,11 +40,13 @@ class TokenManager
     /**
      * Instantiate the class.
      */
-    public function __construct(TokenProvider $tokenProvider, Blacklist $blacklist, array $config)
+    public function __construct(TokenProvider $tokenProvider, Blacklist $blacklist, string $aud, array $config)
     {
         $this->tokenProvider = $tokenProvider;
 
         $this->blacklist = $blacklist;
+
+        $this->aud = $aud;
 
         $this->config = $config;
     }
@@ -57,6 +65,7 @@ class TokenManager
     private function getClaims(Authenticatable $user): Claims
     {
         $value = [
+            'aud' => $this->aud,
             'jti' => Uuid::uuid4()->toString(),
             'iat' => Carbon::now()->timestamp,
             'nbf' => Carbon::now()->timestamp,
@@ -93,6 +102,10 @@ class TokenManager
 
         if ($this->isExpired($claims->exp())) {
             throw new TokenExpiredException;
+        }
+
+        if($claims->aud() != $this->aud){
+            throw new InvalidAudienceException;
         }
 
         return $claims;

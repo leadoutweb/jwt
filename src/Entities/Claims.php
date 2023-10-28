@@ -34,6 +34,14 @@ class Claims
     }
 
     /**
+     * Get the aud claim.
+     */
+    public function aud(): string
+    {
+        return $this->value['aud'];
+    }
+
+    /**
      * Get the iss claim.
      */
     public function iss(): string
