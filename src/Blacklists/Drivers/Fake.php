@@ -21,7 +21,7 @@ class Fake implements Contract
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function put(string $jti, ?int $ttl): void
     {
@@ -29,7 +29,7 @@ class Fake implements Contract
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function has(string $jti): bool
     {

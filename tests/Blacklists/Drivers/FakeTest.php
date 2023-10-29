@@ -11,7 +11,7 @@ class FakeTest extends TestCase
     use ContractTests;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function getBlacklist(): Contract
     {

@@ -27,7 +27,7 @@ class AuthenticatableStub implements Authenticatable
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getAuthIdentifierName()
     {
@@ -35,7 +35,7 @@ class AuthenticatableStub implements Authenticatable
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getAuthIdentifier()
     {
@@ -43,7 +43,7 @@ class AuthenticatableStub implements Authenticatable
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getAuthPassword()
     {
@@ -51,7 +51,7 @@ class AuthenticatableStub implements Authenticatable
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getRememberToken()
     {
@@ -59,7 +59,7 @@ class AuthenticatableStub implements Authenticatable
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function setRememberToken($value)
     {
@@ -67,7 +67,7 @@ class AuthenticatableStub implements Authenticatable
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getRememberTokenName()
     {

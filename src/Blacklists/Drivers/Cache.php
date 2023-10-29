@@ -22,7 +22,7 @@ class Cache implements Contract
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function put(string $jti, ?int $ttl): void
     {
@@ -30,7 +30,7 @@ class Cache implements Contract
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function has(string $jti): bool
     {

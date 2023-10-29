@@ -32,7 +32,7 @@ class Claims
      */
     public function get(string $name): string
     {
-        if (!isset($this->value[$name])) {
+        if (! isset($this->value[$name])) {
             throw new InvalidClaimException;
         }
 

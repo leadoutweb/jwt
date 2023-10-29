@@ -4,12 +4,13 @@ namespace Leadout\JWT\TokenProviders\Drivers;
 
 use Leadout\JWT\Entities\Claims;
 use Leadout\JWT\Entities\Token;
+use Leadout\JWT\Exceptions\InvalidTokenException;
 use Leadout\JWT\TokenProviders\Contract;
 
 class Fake implements Contract
 {
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function encode(Claims $claims): Token
     {
@@ -17,10 +18,14 @@ class Fake implements Contract
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function decode(Token $token): Token
     {
-        return new Token($token->getValue(), new Claims((array)json_decode(base64_decode($token->getValue()))));
+        if (($decoded = json_decode(base64_decode($token->getValue()))) !== null) {
+            return new Token($token->getValue(), new Claims((array) $decoded));
+        }
+
+        throw new InvalidTokenException;
     }
 }

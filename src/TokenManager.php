@@ -6,13 +6,13 @@ use Carbon\Carbon;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Leadout\JWT\Blacklists\Contract as Blacklist;
 use Leadout\JWT\Entities\Claims;
 use Leadout\JWT\Entities\Token;
 use Leadout\JWT\Exceptions\InvalidAudienceException;
 use Leadout\JWT\Exceptions\TokenExpiredException;
 use Leadout\JWT\Exceptions\TokenInvalidatedException;
 use Leadout\JWT\Exceptions\TokenNotProvidedException;
-use Leadout\JWT\Blacklists\Contract as Blacklist;
 use Leadout\JWT\TokenProviders\Contract as TokenProvider;
 
 class TokenManager
@@ -66,7 +66,7 @@ class TokenManager
     {
         $claims = [
             'sub' => $user->getAuthIdentifier(),
-            ...$this->getCommonClaims()
+            ...$this->getCommonClaims(),
         ];
 
         if (method_exists($user, 'getClaims')) {
@@ -87,7 +87,7 @@ class TokenManager
             'iat' => Carbon::now()->timestamp,
             'nbf' => Carbon::now()->timestamp,
             'exp' => Carbon::now()->addMinutes($this->config['ttl'] ?? 60)->timestamp,
-            ...$this->config['claims'] ?? []
+            ...$this->config['claims'] ?? [],
         ];
     }
 
@@ -143,7 +143,7 @@ class TokenManager
         return $this->tokenProvider->encode(
             new Claims([
                 ...$this->decode($request)->claims()->all(),
-                ...$this->getCommonClaims()
+                ...$this->getCommonClaims(),
             ])
         );
     }
@@ -163,7 +163,7 @@ class TokenManager
      */
     private function getEncodedToken(Request $request): Token
     {
-        if (!$request->bearerToken()) {
+        if (! $request->bearerToken()) {
             throw new TokenNotProvidedException;
         }
 

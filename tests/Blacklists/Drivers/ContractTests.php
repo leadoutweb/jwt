@@ -12,7 +12,7 @@ trait ContractTests
     protected Contract $blacklist;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function setUp(): void
     {
@@ -22,7 +22,7 @@ trait ContractTests
     }
 
     /** @test */
-    function can_store_a_jti_in_the_blacklist_indefinitely()
+    public function can_store_a_jti_in_the_blacklist_indefinitely()
     {
         $this->assertFalse($this->blacklist->has('ABC-123'));
 

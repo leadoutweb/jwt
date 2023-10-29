@@ -30,6 +30,7 @@ return [
         'my-guard' => [
             'driver' => 'jwt',
             'provider' => 'users',
+            'key' => 'secret-key',
             'public_key' => 'path_to_public_key_file',
             'private_key' => 'path_to_private_key_file',
             'ttl' => 60,
@@ -46,7 +47,9 @@ return [
 
 The `provider` should be defined in the `providers` array in the authentication configuration file.
 
-The value of `public_key` and `private_key` should point to the public and private keys that are used for encoding and decoding the tokens.
+The `key` is used for encoding and decoding the tokens and should be kept secret.
+
+If not using a single `key` for both encoding and decoding, the `public_key` and `private_key` should point to the public and private keys that are used for encoding and decoding the tokens.
 
 The `ttl` value is the time-to-live for the token in minutes. This field can be omitted from the config. If omitted, the default time-to-live for tokens is set to 60 minutes.
 

@@ -19,7 +19,7 @@ class Token
     /**
      * Instantiate the class.
      */
-    public function __construct(string $value, ?Claims $claims = null)
+    public function __construct(string $value, Claims $claims = null)
     {
         $this->value = $value;
 
@@ -39,7 +39,7 @@ class Token
      */
     public function claims(): Claims
     {
-        if (!$this->claims) {
+        if (! $this->claims) {
             throw new TokenNotDecodedException;
         }
 

@@ -42,7 +42,7 @@ class JWTGuard implements Guard
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function user()
     {
@@ -60,7 +60,7 @@ class JWTGuard implements Guard
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function validate(array $credentials = [])
     {

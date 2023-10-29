@@ -13,7 +13,7 @@ class CacheTest extends TestCase
     use ContractTests;
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     protected function getBlacklist(): Contract
     {
