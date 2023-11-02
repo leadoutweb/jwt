@@ -63,6 +63,20 @@ Since the guard is purely configured through Laravel's native auth configuration
 $guard = auth()->guard('my-guard');
 ```
 
+### Attempting to authenticate a user
+
+It is possible to authenticate a user given the credentials for that user. If a user cannot be authenticated with the credentials, `null` is returned.
+
+```
+$token = auth()->guard('my-guard')->attempt(['email' => 'john@example.com', 'password' => 'secret']]);
+```
+
+The `attempt` method mimics the way that the native `SessionGuard` attempts to authenticate users by firing the same events:
+
+* `Illuminate\Auth\Events\Attempting` when starting an attempt to authenticate.
+* `Illuminate\Auth\Events\Failed` if the attempt fails.
+* `Illuminate\Auth\Events\Validated` if the attempt succeeds.
+
 ### Issuing a token
 
 ```
