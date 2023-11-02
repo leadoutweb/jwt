@@ -68,7 +68,7 @@ $guard = auth()->guard('my-guard');
 It is possible to authenticate a user given the credentials for that user. If a user cannot be authenticated with the credentials, `null` is returned.
 
 ```
-$token = auth()->guard('my-guard')->attempt(['email' => 'john@example.com', 'password' => 'secret']]);
+$token = auth()->guard('my-guard')->attempt(['email' => 'john@example.com', 'password' => 'hidden']]);
 ```
 
 The `attempt` method mimics the way that the native `SessionGuard` attempts to authenticate users by firing the same events:
