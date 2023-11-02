@@ -15,14 +15,16 @@ class JWTServiceProvider extends ServiceProvider
     {
         $this->app['auth']->extend('jwt', function ($app, $name, array $config) {
             $guard = new JWTGuard(
-                $app['request'],
+                $name,
+                $app['auth']->createUserProvider($config['provider']),
                 new TokenManager(
                     new Firebase($config),
                     new Cache($app['cache.store']),
                     $name,
                     $config
                 ),
-                $app['auth']->createUserProvider($config['provider']),
+                $app['events'],
+                $app['request'],
             );
 
             $app->refresh('request', $guard, 'setRequest');
