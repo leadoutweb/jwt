@@ -282,8 +282,8 @@ class TokenManagerTest extends TestCase
      * Get a token manager to use for testing.
      */
     private function getTokenManager(
-        TokenProviderFake $tokenProvider = null,
-        BlacklistFake $blacklist = null,
+        ?TokenProviderFake $tokenProvider = null,
+        ?BlacklistFake $blacklist = null,
         string $name = 'jwt',
         array $config = []
     ): TokenManager {

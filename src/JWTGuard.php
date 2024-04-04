@@ -52,8 +52,8 @@ class JWTGuard implements Guard
         UserProvider $provider,
         TokenManager $tokenManager,
         Dispatcher $events,
-        Request $request = null,
-        Timebox $timebox = null
+        ?Request $request = null,
+        ?Timebox $timebox = null
     ) {
         $this->name = $name;
 
