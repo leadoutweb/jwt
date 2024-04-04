@@ -75,6 +75,14 @@ class AuthenticatableStub implements Authenticatable
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public function getAuthPasswordName()
+    {
+        //
+    }
+
+    /**
      * Get additional claims to use when issuing a token.
      */
     public function getClaims(): array
