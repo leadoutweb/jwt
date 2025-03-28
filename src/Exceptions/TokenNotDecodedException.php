@@ -2,6 +2,4 @@
 
 namespace Leadout\JWT\Exceptions;
 
-class TokenNotDecodedException extends JWTException
-{
-}
+class TokenNotDecodedException extends JWTException {}

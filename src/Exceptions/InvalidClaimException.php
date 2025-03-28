@@ -2,6 +2,4 @@
 
 namespace Leadout\JWT\Exceptions;
 
-class InvalidClaimException extends JWTException
-{
-}
+class InvalidClaimException extends JWTException {}

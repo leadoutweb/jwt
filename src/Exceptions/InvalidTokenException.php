@@ -2,6 +2,4 @@
 
 namespace Leadout\JWT\Exceptions;
 
-class InvalidTokenException extends JWTException
-{
-}
+class InvalidTokenException extends JWTException {}
