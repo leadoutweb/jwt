@@ -3,6 +3,7 @@
 namespace Tests\TokenProviders\Drivers;
 
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Leadout\JWT\Entities\Claims;
 use Leadout\JWT\Entities\Token;
 use Leadout\JWT\Exceptions\TokenExpiredException;
@@ -29,7 +30,7 @@ class FirebaseTest extends TestCase
     public function can_be_configured_with_a_key()
     {
         $tokenProvider = new Firebase([
-            'key' => 'ABC-123',
+            'key' => Str::random(256),
         ]);
 
         $claims = $this->getValidClaims();
